@@ -10,7 +10,7 @@ Requires the following permissions:
         cloudwatch:DescribeAlarms
         cloudwatch:DescribeAlarmsForMetric
         cloudwatch:EnableAlarmActions | DisableAlarmActions (depending on options chosen)     	
-        cloudwatch:PutMetricAlarm       
+        cloudwatch:PutMetricAlarm
         ... The managed policy CloudWatchFullAccess provides the needed permissions.        
 
 * To check that free space is appropriately defined, also need to be able to check the E/S cluster definitions.
@@ -20,7 +20,7 @@ Expects the following parameters:
 env               environment; is used in the Alarm name only. Default: Test
 clusterName       Amazon Elasticsearch Service domain name on which the alarms are to be created
 clientId          the account Id of the owning AWS account (needed for CloudWatch alarm dimension)
-alarmActions      list of SNS arns to be notified when the alarm is fired 
+alarmActions      list of SNS arns to be notified when the alarm is fired
 free              minimum amount of free storage to assign, if no other information is available
 
 @author Veronika Megler
@@ -50,7 +50,7 @@ DEFAULT_SNSTOPIC = "sendnotification"
 
 Alarm = collections.namedtuple('Alarm', ['metric', 'stat', 'period',  'eval_period', 'operator', 'threshold', 'alarmAction'])
 
-# Amazon Elasticsearch Service settings 
+# Amazon Elasticsearch Service settings
 ES_NAME_SPACE = 'AWS/ES'    # set for these Amazon Elasticsearch Service alarms
 # The following table lists instance types with instance storage, for free storage calculations. 
 # It must be updated when instance definitions change
@@ -77,7 +77,7 @@ DISK_SPACE = {"r3.large.elasticsearch": 32,
     
 MIN_ES_FREESPACE = 2048.0  # default amount of free space (in MB). ALSO minimum set by AWS ES
 MIN_ES_FREESPACE_PERCENT = .20    # Required minimum 20% free space
-DEFAULT_ES_FREESPACE = MIN_ES_FREESPACE  
+DEFAULT_ES_FREESPACE = MIN_ES_FREESPACE
 
 LOG_LEVELS = {'CRITICAL': 50, 'ERROR': 40, 'WARNING': 30, 'INFO': 20, 'DEBUG': 10}
 
@@ -126,7 +126,7 @@ def convert_unicode(data):
     elif isinstance(data, collections.Iterable):
         return type(data)(map(convert_unicode, data))
     #else:
-    return data       
+    return data
 
 def str_convert_unicode(data):   
     return str(convert_unicode(data))
@@ -134,7 +134,7 @@ def str_convert_unicode(data):
 def get_default_alarm_actions(region, account, snstopic):
     # A default alarmActions can be hardcoded, to allow for easier standardization.
     alarmActions = ["arn:aws:sns:" + str(region) + ":" + str(account) + ":" + str(snstopic)]
-    return alarmActions    
+    return alarmActions
 
 def get_args():
     """
@@ -239,7 +239,7 @@ def main():
     if 'DomainStatus' not in response:
         # For whatever reason, didn't get a response from this domain. 
         logger.error("No domainStatus response received from domain " + domain + "; no alarms created")  
-        return   
+        return
 
     domainStatus = response['DomainStatus']
     
@@ -281,8 +281,8 @@ def main():
                 ]
     cwclient = b3session.client("cloudwatch", region_name=args.region)
 
-    # For each alarm in the array, create the CloudWatch alarm for this cluster 
-    # NOTE: If you specify an Action with an SNS topic in the wrong region, you'll get a message that you've chosen an invalid region 
+    # For each alarm in the array, create the CloudWatch alarm for this cluster
+    # NOTE: If you specify an Action with an SNS topic in the wrong region, you'll get a message that you've chosen an invalid region
     # on the put_metric_alarm.
     theAlarmAction = args.notify
     for esAlarm in esAlarms:
