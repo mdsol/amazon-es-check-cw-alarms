@@ -157,8 +157,6 @@ def get_args():
     parser.add_argument("-c", "--cluster", required = True, type = str, help = "Amazon Elasticsearch Service domain name (e.g., testcluster1)")
     parser.add_argument("-a", "--account", required = False, type = int, default=currentAccount,
         help = "AWS account id of the owning account (needed for metric dimension).")
-    parser.add_argument("-e", "--env", required = False, type = str, default = "Test", 
-        help = "Environment (e.g., Test, or Prod). Prepended to the alarm name.")    
     parser.add_argument("-f", "--free", required = False, type = float, default=DEFAULT_ES_FREESPACE, 
         help = "Minimum free storage (MB) on which to alarm")
     parser.add_argument("-p", "--profile", required = False, type = str, default='default',
@@ -286,7 +284,7 @@ def main():
     # on the put_metric_alarm.
     theAlarmAction = args.notify
     for esAlarm in esAlarms:
-        alarmName = '-'.join([args.env, 'Elasticsearch', esDomain, esAlarm.metric, 'Alarm'])        
+        alarmName = '-'.join(['AES', esDomain, esAlarm.metric, 'Alarm'])        
         response = cwclient.put_metric_alarm(
             AlarmName=alarmName,
             AlarmDescription=alarmName,
