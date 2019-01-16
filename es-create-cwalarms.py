@@ -76,7 +76,7 @@ DISK_SPACE = {"r3.large.elasticsearch": 32,
     }
     
 MIN_ES_FREESPACE = 2048.0  # default amount of free space (in MB). ALSO minimum set by AWS ES
-MIN_ES_FREESPACE_PERCENT = .20    # Required minimum 20% free space
+MIN_ES_FREESPACE_PERCENT = .25    # Required minimum 20% free space
 DEFAULT_ES_FREESPACE = MIN_ES_FREESPACE
 
 LOG_LEVELS = {'CRITICAL': 50, 'ERROR': 40, 'WARNING': 30, 'INFO': 20, 'DEBUG': 10}
