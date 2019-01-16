@@ -207,6 +207,9 @@ def calc_storage(b3session, domainStatus, wantesfree):
             logger.warning(clusterConfig['InstanceType'] + " is using instance storage, but definition of its disk space is not available.")
     logger.info("Desired free storage set to (in MB): " + str(esfree)) 
     return esfree
+
+def get_nodes_expected(domainStatus):
+    return domainStatus['ElasticsearchClusterConfig']['InstanceCount']
     
 ###############################################################################
 # 
@@ -248,15 +251,15 @@ def main():
     # (MetricName, Statistic, Period, EvaluationPeriods  [int], ComparisonOperator, Threshold [float] )
     #       ComparisonOperator: 'GreaterThanOrEqualToThreshold'|'GreaterThanThreshold'|'LessThanThreshold'|'LessThanOrEqualToThreshold'
     esAlarms = [
-        Alarm(metric='ClusterStatus.yellow', stat='Maximum', period=60, eval_period=5, operator='GreaterThanOrEqualToThreshold', threshold=1.0, alarmAction=theAlarmAction),
-        Alarm(metric='ClusterStatus.red', stat='Maximum', period=60, eval_period=5, operator='GreaterThanOrEqualToThreshold', threshold=1.0, alarmAction=theAlarmAction),
-        Alarm(metric='CPUUtilization', stat='Average', period=60, eval_period=5, operator='GreaterThanOrEqualToThreshold', threshold=80.0, alarmAction=theAlarmAction),
-        Alarm(metric='JVMMemoryPressure', stat='Average', period=60, eval_period=5, operator='GreaterThanOrEqualToThreshold', threshold=85.0, alarmAction=theAlarmAction),
+        Alarm(metric='ClusterStatus.red', stat='Maximum', period=60, eval_period=1, operator='GreaterThanOrEqualToThreshold', threshold=1.0, alarmAction=theAlarmAction),
+        Alarm(metric='ClusterStatus.yellow', stat='Maximum', period=60, eval_period=1, operator='GreaterThanOrEqualToThreshold', threshold=1.0, alarmAction=theAlarmAction),
+        Alarm(metric="FreeStorageSpace", stat="Minimum", period=60, eval_period=1, 
+            operator="LessThanOrEqualToThreshold", threshold=float(calc_storage(b3session, domainStatus, args.free)), alarmAction=theAlarmAction ),
         Alarm(metric='ClusterIndexWritesBlocked', stat='Maximum', period=60, eval_period=5, operator='GreaterThanOrEqualToThreshold', threshold=1.0, alarmAction=theAlarmAction),
-        Alarm(metric="FreeStorageSpace", stat="Minimum", period=60, eval_period=5, 
-            operator="LessThanOrEqualToThreshold", threshold=float(calc_storage(b3session, domainStatus, args.free)), alarmAction=theAlarmAction )
-        # OPTIONAL
-        , Alarm(metric='AutomatedSnapshotFailure', stat='Maximum', period=60, eval_period=5, operator='GreaterThanOrEqualToThreshold', threshold=1.0, alarmAction=theAlarmAction)             
+        Alarm(metric='Nodes', stat='Maximum', period=86400, eval_period=1, operator='LessThanThreshold', threshold=float(get_nodes_expected(domainStatus)), alarmAction=theAlarmAction),
+        Alarm(metric='AutomatedSnapshotFailure', stat='Maximum', period=60, eval_period=1, operator='GreaterThanOrEqualToThreshold', threshold=1.0, alarmAction=theAlarmAction),
+        Alarm(metric='CPUUtilization', stat='Average', period=60, eval_period=5, operator='GreaterThanOrEqualToThreshold', threshold=80.0, alarmAction=theAlarmAction),
+        Alarm(metric='JVMMemoryPressure', stat='Average', period=60, eval_period=5, operator='GreaterThanOrEqualToThreshold', threshold=85.0, alarmAction=theAlarmAction)
         ]
  
     if domainStatus['ElasticsearchClusterConfig']['DedicatedMasterEnabled']:
