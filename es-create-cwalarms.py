@@ -258,21 +258,21 @@ def main():
         Alarm(metric='ClusterIndexWritesBlocked', stat='Maximum', period=60, eval_period=5, operator='GreaterThanOrEqualToThreshold', threshold=1.0, alarmAction=theAlarmAction),
         Alarm(metric='Nodes', stat='Maximum', period=86400, eval_period=1, operator='LessThanThreshold', threshold=float(get_nodes_expected(domainStatus)), alarmAction=theAlarmAction),
         Alarm(metric='AutomatedSnapshotFailure', stat='Maximum', period=60, eval_period=1, operator='GreaterThanOrEqualToThreshold', threshold=1.0, alarmAction=theAlarmAction),
-        Alarm(metric='CPUUtilization', stat='Average', period=60, eval_period=5, operator='GreaterThanOrEqualToThreshold', threshold=80.0, alarmAction=theAlarmAction),
-        Alarm(metric='JVMMemoryPressure', stat='Average', period=60, eval_period=5, operator='GreaterThanOrEqualToThreshold', threshold=85.0, alarmAction=theAlarmAction)
+        Alarm(metric='CPUUtilization', stat='Average', period=900, eval_period=3, operator='GreaterThanOrEqualToThreshold', threshold=80.0, alarmAction=theAlarmAction),
+        Alarm(metric='JVMMemoryPressure', stat='Average', period=900, eval_period=1, operator='GreaterThanOrEqualToThreshold', threshold=80.0, alarmAction=theAlarmAction),
         ]
  
     if domainStatus['ElasticsearchClusterConfig']['DedicatedMasterEnabled']:
         # The following alarms apply for domains with dedicated master nodes.
         logger.info(esDomain + " has Dedicated Masters. Adding Master alarms.")
-        esAlarms.append(Alarm(metric='MasterCPUUtilization', stat='Maximum', period=60, eval_period=5, operator='GreaterThanOrEqualToThreshold', threshold=80.0, alarmAction=theAlarmAction))
-        esAlarms.append(Alarm(metric='MasterJVMMemoryPressure', stat='Maximum', period=60, eval_period=5, operator='GreaterThanOrEqualToThreshold', threshold=80.0, alarmAction=theAlarmAction))
+        esAlarms.append(Alarm(metric='MasterCPUUtilization', stat='Maximum', period=900, eval_period=3, operator='GreaterThanOrEqualToThreshold', threshold=50.0, alarmAction=theAlarmAction))
+        esAlarms.append(Alarm(metric='MasterJVMMemoryPressure', stat='Maximum', period=900, eval_period=1, operator='GreaterThanOrEqualToThreshold', threshold=80.0, alarmAction=theAlarmAction))
         esAlarms.append(Alarm(metric='MasterReachableFromNode', stat='Maximum', period=60, eval_period=5, operator='LessThanOrEqualToThreshold', threshold=0.0, alarmAction=theAlarmAction))
             
     if "EncryptionAtRestOptions" in domainStatus and domainStatus["EncryptionAtRestOptions"]["Enabled"]:
         # The following alarms are available for domains with encryption at rest
         logger.info(' '.join([esDomain, "is using encryption - adding KMS key alarms. Key:", str_convert_unicode(domainStatus["EncryptionAtRestOptions"]["KmsKeyId"])]))
-        esAlarms.append(Alarm(metric='KMSKeyError', stat='Maximum', period=60, eval_period=5, operator='GreaterThanOrEqualToThreshold', threshold=1.0, alarmAction=theAlarmAction))
+        esAlarms.append(Alarm(metric='KMSKeyError', stat='Maximum', period=60, eval_period=1, operator='GreaterThanOrEqualToThreshold', threshold=1.0, alarmAction=theAlarmAction))
         esAlarms.append(Alarm(metric='KMSKeyInaccessible', stat='Maximum', period=60, eval_period=5, operator='GreaterThanOrEqualToThreshold', threshold=1.0, alarmAction=theAlarmAction))
         
     # Unless you add the correct dimensions, the alarm will not correctly "connect" to the metric
